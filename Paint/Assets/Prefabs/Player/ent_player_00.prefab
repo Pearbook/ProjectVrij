@@ -95,7 +95,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &8202311290112643198
 Transform:
   m_ObjectHideFlags: 0
@@ -179,6 +179,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8202311290158202971}
   - component: {fileID: 8202311290158202970}
+  - component: {fileID: 198506078332305670}
   - component: {fileID: 8202311290158202974}
   - component: {fileID: 8202311290158202972}
   - component: {fileID: 8202311290158202973}
@@ -222,6 +223,20 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!136 &198506078332305670
+CapsuleCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8202311290158202969}
+  m_Material: {fileID: 13400000, guid: c2815a7ab32e42c4bb42f59caacb8ec1, type: 2}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  m_Radius: 0.26
+  m_Height: 1.3
+  m_Direction: 1
+  m_Center: {x: 0, y: 0.65, z: 0}
 --- !u!114 &8202311290158202974
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -255,10 +270,12 @@ MonoBehaviour:
   movementSettings:
     MovementSpeed: 0.55
     SlowdownRate: 5
+    currentTargetSpeed: 0
     JumpForce: 7.5
+    AirMovementSpeed: 0.2
   groundCheckSettings:
-    GroundCheckRadius: 0.3
-    Offset: {x: 0, y: 0.2, z: 0}
+    GroundCheckRadius: 0.22
+    Offset: {x: 0, y: 0.17, z: 0}
     GroundMask:
       serializedVersion: 2
       m_Bits: 1

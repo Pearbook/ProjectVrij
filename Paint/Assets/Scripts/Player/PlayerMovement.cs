@@ -12,8 +12,12 @@ public class PlayerMovement : MonoBehaviour
         public float MovementSpeed;
         public float SlowdownRate;
 
+        [HideInInspector]
+        public float currentTargetSpeed;
+
         [Header("Jumping")]
         public float JumpForce;
+        public float AirMovementSpeed;
     }
 
     [Serializable]
@@ -53,12 +57,13 @@ public class PlayerMovement : MonoBehaviour
     {
         // Check if the player is grounded or not.
         GroundCheck();
+        UpdateDesiredTargetSpeed();
 
         // Get player input.
         Vector3 input = GameManager.Player.GetInput(GetComponent<PlayerProperties>().PlayerID);
 
         // Move the player by adding force to the rigidbody.
-        myRigidbody.AddForce(input * movementSettings.MovementSpeed, ForceMode.Impulse);
+        myRigidbody.AddForce(input * movementSettings.currentTargetSpeed, ForceMode.Impulse);
 
         if (isGrounded)
         {
@@ -78,6 +83,15 @@ public class PlayerMovement : MonoBehaviour
         }
 
         jump = false;
+    }
+
+    void UpdateDesiredTargetSpeed()
+    {
+        if (isGrounded)
+            movementSettings.currentTargetSpeed = movementSettings.MovementSpeed;
+        else
+            movementSettings.currentTargetSpeed = movementSettings.AirMovementSpeed;
+
     }
 
     private void GroundCheck()

@@ -10,6 +10,9 @@ public class GameplayManager : MonoBehaviour
     public int ScorePerSpray;
     public int ScorePerDeath;
 
+    public int RespawnDelay = 1;
+    private GameObject playerToRespawn;
+
     private void Awake()
     {
         SpawnPlayer(1);
@@ -34,5 +37,18 @@ public class GameplayManager : MonoBehaviour
         GameManager.Player.AllPlayers[id - 1].PlayerID = id;
 
         player.GetComponent<PlayerProperties>().PlayerGraphic[id - 1].SetActive(true);
+    }
+
+    public void RespawnPlayer(GameObject player)
+    {
+        Timer.Countdown(RespawnDelay, Respawn);
+
+        playerToRespawn = player;
+    }
+
+    void Respawn()
+    {
+        playerToRespawn.transform.position = SpawnPoints[Random.Range(0, 1)].position;
+        playerToRespawn.GetComponent<PlayerMovement>().myRigidbody.velocity = Vector3.zero;
     }
 }
