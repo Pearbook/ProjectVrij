@@ -21,6 +21,15 @@ public class PlayerMovement : MonoBehaviour
     }
 
     [Serializable]
+    public class BounceSettings
+    {
+        public float BounceCheckRadius;
+        public Vector3 BounceCheckSize;
+        public Vector3 Offset;
+        public LayerMask BounceMask;
+    }
+
+    [Serializable]
     public class GroundCheckSettings
     {
         public float GroundCheckRadius = 0.5f;
@@ -31,6 +40,7 @@ public class PlayerMovement : MonoBehaviour
     public Rigidbody myRigidbody;
 
     public MovementSettings movementSettings = new MovementSettings();
+    public BounceSettings bounceSettings = new BounceSettings();
     public GroundCheckSettings groundCheckSettings = new GroundCheckSettings();
 
     private bool isGrounded;
@@ -57,6 +67,9 @@ public class PlayerMovement : MonoBehaviour
     {
         // Check if the player is grounded or not.
         GroundCheck();
+
+        BounceCheck();
+
         UpdateDesiredTargetSpeed();
 
         // Get player input.
@@ -91,7 +104,6 @@ public class PlayerMovement : MonoBehaviour
             movementSettings.currentTargetSpeed = movementSettings.MovementSpeed;
         else
             movementSettings.currentTargetSpeed = movementSettings.AirMovementSpeed;
-
     }
 
     private void GroundCheck()
@@ -111,6 +123,16 @@ public class PlayerMovement : MonoBehaviour
 
         if (isJumping)
             isJumping = false;
+    }
+
+    private void BounceCheck()
+    {
+        Collider[] coll = Physics.OverlapBox(transform.position + bounceSettings.Offset, bounceSettings.BounceCheckSize/2, Quaternion.identity, bounceSettings.BounceMask);
+
+        if (coll.Length > 0)
+        {
+            myRigidbody.AddForce(new Vector3(0, movementSettings.JumpForce, 0), ForceMode.Impulse);
+        }
     }
 
     void ButtonPress(string key)
@@ -136,5 +158,9 @@ public class PlayerMovement : MonoBehaviour
     {
         Gizmos.color = Color.blue;
         Gizmos.DrawWireSphere(new Vector3(transform.position.x + groundCheckSettings.Offset.x, transform.position.y + groundCheckSettings.Offset.y, transform.position.z + groundCheckSettings.Offset.z), groundCheckSettings.GroundCheckRadius);
+
+        Gizmos.color = Color.red;
+        //Gizmos.DrawWireSphere(new Vector3(transform.position.x + bounceSettings.Offset.x, transform.position.y + bounceSettings.Offset.y, transform.position.z + bounceSettings.Offset.z), bounceSettings.BounceCheckRadius);
+        Gizmos.DrawWireCube(transform.position + bounceSettings.Offset, bounceSettings.BounceCheckSize);
     }
 }
