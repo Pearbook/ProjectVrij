@@ -30,3 +30,25 @@ The following packages were added:
   com.unity.xr.legacyinputhelpers@2.0.2
 The following packages were updated:
   com.unity.package-manager-ui from version 2.1.2 to 2.2.0
+
+=== Fri May 17 20:58:14 2019
+
+Packages were changed.
+Update Mode: resetToDefaultDependencies
+
+The following packages were updated:
+  com.unity.package-manager-ui from version 2.2.0 to 2.1.2
+The following packages were removed:
+  com.unity.2d.sprite@1.0.0
+  com.unity.2d.tilemap@1.0.0
+  com.unity.ext.nunit@1.0.0
+  com.unity.ide.rider@1.0.4
+  com.unity.ide.visualstudio@1.0.5
+  com.unity.ide.vscode@1.0.4
+  com.unity.multiplayer-hlapi@1.0.2
+  com.unity.probuilder@4.0.5
+  com.unity.progrids@3.0.3-preview.4
+  com.unity.render-pipelines.high-definition@5.13.0-preview
+  com.unity.test-framework@1.0.12
+  com.unity.xr.legacyinputhelpers@2.0.2
+  com.unity.modules.androidjni@1.0.0
