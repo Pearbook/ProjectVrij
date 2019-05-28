@@ -12,6 +12,9 @@ public class PlayerController : MonoBehaviour
         public Transform SprayPivot;
         public float SprayDistance;
         public LayerMask SprayMask;
+
+        public Texture2D BrushTextureOne;
+        public Texture2D BrushTextureTwo;
     }
 
     public SpraySettings spraySettings = new SpraySettings();
@@ -27,6 +30,20 @@ public class PlayerController : MonoBehaviour
         else if (GetComponent<PlayerProperties>().PlayerID == 2)
         {
             ButtonPress("Spray_p2");
+        }
+    }
+
+    void Paint()
+    {
+        RaycastHit hit;
+
+        if (Physics.Raycast(spraySettings.SprayPivot.position, Vector3.forward, out hit, spraySettings.SprayDistance, spraySettings.SprayMask))
+        {
+            if (GetComponent<PlayerProperties>().PlayerID == 1)
+                hit.collider.gameObject.GetComponent<PlayerCanvas>().AddToCanvas(hit.textureCoord, spraySettings.BrushTextureOne);
+            else if (GetComponent<PlayerProperties>().PlayerID == 2)
+                hit.collider.gameObject.GetComponent<PlayerCanvas>().AddToCanvas(hit.textureCoord, spraySettings.BrushTextureTwo);
+
         }
     }
 
@@ -51,8 +68,9 @@ public class PlayerController : MonoBehaviour
         {
             if (isButtonPressed == false)
             {
-                Spray();
-                isButtonPressed = true;
+                //Spray();
+                Paint();
+                //isButtonPressed = true;
             }
         }
         if (Input.GetAxisRaw(key) == 0)
