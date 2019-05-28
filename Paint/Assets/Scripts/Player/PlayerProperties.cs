@@ -8,4 +8,5 @@ public class PlayerProperties : MonoBehaviour
     public int Score;
 
     public List<GameObject> PlayerGraphic;
+
 }

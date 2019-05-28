@@ -43,6 +43,11 @@ public class PlayerMovement : MonoBehaviour
     public BounceSettings bounceSettings = new BounceSettings();
     public GroundCheckSettings groundCheckSettings = new GroundCheckSettings();
 
+    public bool AllowControl = true;
+
+    public float TurnSpeed;
+    public bool ignoreY;
+
     private bool isGrounded;
 
     private bool jump;
@@ -60,7 +65,16 @@ public class PlayerMovement : MonoBehaviour
         {
             ButtonPress("Jump_p2");
         }
-            
+
+        //rotates rigidbody to face its current velocity public void RotateToVelocity(float turnSpeed, bool ignoreY) {
+        Vector3 dir; if (ignoreY) dir = new Vector3(myRigidbody.velocity.x, 0f, myRigidbody.velocity.z); else dir = myRigidbody.velocity;
+
+        if (dir.magnitude > 0.1)
+        {
+            Quaternion dirQ = Quaternion.LookRotation(dir);
+            Quaternion slerp = Quaternion.Slerp(transform.rotation, dirQ, dir.magnitude * TurnSpeed * Time.deltaTime);
+            myRigidbody.MoveRotation(slerp);
+        }
     }
 
     private void FixedUpdate()
@@ -72,11 +86,15 @@ public class PlayerMovement : MonoBehaviour
 
         UpdateDesiredTargetSpeed();
 
-        // Get player input.
-        Vector3 input = GameManager.Player.GetInput(GetComponent<PlayerProperties>().PlayerID);
+        
+        if (AllowControl)
+        {
+            // Get player input.
+            Vector3 input = GameManager.Player.GetInput(GetComponent<PlayerProperties>().PlayerID);
 
-        // Move the player by adding force to the rigidbody.
-        myRigidbody.AddForce(input * movementSettings.currentTargetSpeed, ForceMode.Impulse);
+            // Move the player by adding force to the rigidbody.
+            myRigidbody.AddForce(input * movementSettings.currentTargetSpeed, ForceMode.Impulse);
+        }
 
         if (isGrounded)
         {
@@ -132,6 +150,7 @@ public class PlayerMovement : MonoBehaviour
         if (coll.Length > 0)
         {
             myRigidbody.AddForce(new Vector3(0, movementSettings.JumpForce, 0), ForceMode.Impulse);
+            GameManager.Player.GetStunned(coll[0].GetComponent<PlayerProperties>().PlayerID);
         }
     }
 

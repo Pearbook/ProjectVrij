@@ -11,6 +11,17 @@ public class PlayerManager : MonoBehaviour
     public List<GameObject> PlayerOnePrays;
     public List<GameObject> PlayerTwoPrays;
 
+    public void GetStunned(int myID)
+    {
+        print("GET STUNNED BITCH");
+        DisableContol(myID);
+    }
+
+    public void DisableContol(int myID)
+    {
+        AllPlayers[myID - 1].gameObject.GetComponent<PlayerMovement>().AllowControl = false;
+    }
+
     public void AddPlayerScore(int myID, int amount)
     {
         AllPlayers[myID - 1].Score += amount;
