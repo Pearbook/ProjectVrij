@@ -150,7 +150,7 @@ public class PlayerMovement : MonoBehaviour
         if (coll.Length > 0)
         {
             myRigidbody.AddForce(new Vector3(0, movementSettings.JumpForce, 0), ForceMode.Impulse);
-            GameManager.Player.GetStunned(coll[0].GetComponent<PlayerProperties>().PlayerID);
+            //GameManager.Player.GetStunned(coll[0].GetComponent<PlayerProperties>().PlayerID);
         }
     }
 

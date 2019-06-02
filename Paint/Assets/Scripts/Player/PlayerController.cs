@@ -15,9 +15,14 @@ public class PlayerController : MonoBehaviour
 
         public Texture2D BrushTextureOne;
         public Texture2D BrushTextureTwo;
+
+        public GameObject ParticlePrefabOne;
+        public GameObject ParticlePrefabTwo;
     }
 
     public SpraySettings spraySettings = new SpraySettings();
+
+    public ParticleSystem MySprayParticle;
 
     private bool isButtonPressed;
 
@@ -26,10 +31,18 @@ public class PlayerController : MonoBehaviour
         if (GetComponent<PlayerProperties>().PlayerID == 1)
         {
             ButtonPress("Spray_p1");
+
+            /*
+            if (MySprayParticle != null && MySprayParticle.isPlaying)
+                MySprayParticle.Stop();*/
         }
         else if (GetComponent<PlayerProperties>().PlayerID == 2)
         {
             ButtonPress("Spray_p2");
+
+            /*
+            if (MySprayParticle != null && MySprayParticle.isPlaying)
+                MySprayParticle.Stop();*/
         }
     }
 
@@ -40,10 +53,48 @@ public class PlayerController : MonoBehaviour
         if (Physics.Raycast(spraySettings.SprayPivot.position, Vector3.forward, out hit, spraySettings.SprayDistance, spraySettings.SprayMask))
         {
             if (GetComponent<PlayerProperties>().PlayerID == 1)
-                hit.collider.gameObject.GetComponent<PlayerCanvas>().AddToCanvas(hit.textureCoord, spraySettings.BrushTextureOne);
-            else if (GetComponent<PlayerProperties>().PlayerID == 2)
-                hit.collider.gameObject.GetComponent<PlayerCanvas>().AddToCanvas(hit.textureCoord, spraySettings.BrushTextureTwo);
+            {
+                if (MySprayParticle == null)
+                {
+                    GameObject spray = (GameObject)Instantiate(spraySettings.ParticlePrefabOne, hit.point, Quaternion.identity);
 
+                    MySprayParticle = spray.GetComponentInChildren<ParticleSystem>();
+
+                }
+                else
+                {
+                    if (!MySprayParticle.isPlaying)
+                        MySprayParticle.Play();
+
+                    MySprayParticle.transform.parent.transform.position = hit.point;
+                }
+
+                hit.collider.gameObject.GetComponent<PlayerCanvas>().AddToCanvas(hit.textureCoord, spraySettings.BrushTextureOne);
+            }
+            else if (GetComponent<PlayerProperties>().PlayerID == 2)
+            {
+                if (MySprayParticle == null)
+                {
+                    GameObject spray = (GameObject)Instantiate(spraySettings.ParticlePrefabTwo, hit.point, Quaternion.identity);
+
+                    MySprayParticle = spray.GetComponentInChildren<ParticleSystem>();
+
+                }
+                else
+                {
+                    if (!MySprayParticle.isPlaying)
+                        MySprayParticle.Play();
+
+                    MySprayParticle.transform.parent.transform.position = hit.point;
+                }
+
+                hit.collider.gameObject.GetComponent<PlayerCanvas>().AddToCanvas(hit.textureCoord, spraySettings.BrushTextureTwo);
+            }
+
+        }
+        else
+        {
+            MySprayParticle.Stop();
         }
     }
 
@@ -76,6 +127,9 @@ public class PlayerController : MonoBehaviour
         if (Input.GetAxisRaw(key) == 0)
         {
             isButtonPressed = false;
+
+            if(MySprayParticle != null)
+                MySprayParticle.Stop(); 
         }
     }
 }
