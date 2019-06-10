@@ -27,6 +27,8 @@ public class PlayerDrawing : MonoBehaviour
     public Texture2D MyBrush;
     private PlayerCanvas hitCanvas;
 
+    public LayerMask PickUpMask;
+
     private ParticleSystem myParticle;
     private GameObject myBeam;
 
@@ -38,17 +40,22 @@ public class PlayerDrawing : MonoBehaviour
 
     private bool isDrawing;
     private bool isButtonPressed;
+    private bool hasPickup;
+
+    private PlayerProperties prop;
 
     private void Start()
     {
         drawPoints = new List<Vector3>();
+
+        prop = GetComponent<PlayerProperties>();
 
         if(GetComponent<PlayerProperties>().PlayerID == 1)
         {
             direction = Vector3.right;
             MyBrush = GameManager.Player.GetPlayerBrush(1);
             myBeam = GameManager.Player.BeamPrefabs[0];
-            myParticle = GetComponent<PlayerProperties>().SprayParticles[0];
+            myParticle = prop.SprayParticles[0];
         }
 
         if (GetComponent<PlayerProperties>().PlayerID == 2)
@@ -56,54 +63,87 @@ public class PlayerDrawing : MonoBehaviour
             direction = Vector3.left;
             MyBrush = GameManager.Player.GetPlayerBrush(2);
             myBeam = GameManager.Player.BeamPrefabs[1];
-            myParticle = GetComponent<PlayerProperties>().SprayParticles[1];
+            myParticle = prop.SprayParticles[1];
         }
+
+        myParticle.transform.GetChild(0).gameObject.SetActive(false);
+        myParticle.Stop();
     }
 
     private void Update()
     {
-        if (GetComponent<PlayerProperties>().PlayerID == 1)
-            ButtonPress("Jump_p1");
-        else if (GetComponent<PlayerProperties>().PlayerID == 2)
-            ButtonPress("Jump_p2");
-
-        if (isDrawing)
+        if (GameManager.Gameplay.GameHasStarted)
         {
-            Vector3 point = GetDrawPointVector();
-
-            if(activeIndicator == null)
+            if (prop.AllowControl && prop.AllowPainting)
             {
-                activeIndicator = (GameObject)Instantiate(IndicatorPrefab, point, Quaternion.identity);
+                if (prop.PlayerID == 1)
+                    ButtonPress("Jump_p1");
+                else if (prop.PlayerID == 2)
+                    ButtonPress("Jump_p2");
+            }
+            else
+            {
+                isDrawing = false;
             }
 
-            if (activeIndicator != null && drawPoints.Count > 0)
+            if (isDrawing)
             {
-                activeIndicator.transform.position = drawPoints[0];
-                activeIndicator.SetActive(true);
+                if (prop.AllowPainting)
+                {
+                    Vector3 point = GetDrawPointVector();
+
+                    if (activeIndicator == null)
+                    {
+                        activeIndicator = (GameObject)Instantiate(IndicatorPrefab, point, Quaternion.identity);
+                    }
+
+                    if (activeIndicator != null && drawPoints.Count > 0)
+                    {
+                        activeIndicator.transform.position = drawPoints[0];
+                        activeIndicator.SetActive(true);
+                    }
+
+                    if (!myParticle.isPlaying)
+                    {
+                        myParticle.Play();
+                        myParticle.transform.GetChild(0).gameObject.SetActive(true);
+                    }
+
+                    hitCanvas.AddToCanvas(textureCoord, MyBrush);
+
+                    if (drawPoints.Count <= 0 || Vector3.Distance(point, drawPoints.Last()) > threshold)
+                    {
+                        drawPoints.Add(point);
+                    }
+
+                    // Only reduce when moving
+                    if (prop.isMoving)
+                        prop.ReducePaint(); // Reduce paint
+                    else
+                        prop.StopPaint();
+
+                    //Play Spray Audio
+                    GameManager.Player.PlayerAudio[prop.PlayerID - 1].PlaySpraySound();
+                }
+                else
+                    isDrawing = false;
             }
-
-            if (!myParticle.isPlaying)
+            else
             {
-                myParticle.Play();
-                myParticle.transform.GetChild(0).gameObject.SetActive(true);
-            }
+                if (activeIndicator != null)
+                    activeIndicator.SetActive(false);
 
-            hitCanvas.AddToCanvas(textureCoord, MyBrush);
+                if (myParticle.isPlaying)
+                {
+                    myParticle.Stop();
+                    myParticle.transform.GetChild(0).gameObject.SetActive(false);
+                }
 
-            if (drawPoints.Count <= 0 || Vector3.Distance(point, drawPoints.Last()) > threshold)
-            {
-                drawPoints.Add(point);
-            }
-        }
-        else
-        {
-            if (activeIndicator != null)
-                activeIndicator.SetActive(false);
+                // Stop reducing paint
+                prop.StopPaint();
 
-            if (myParticle.isPlaying)
-            {
-                myParticle.Stop();
-                myParticle.transform.GetChild(0).gameObject.SetActive(false);
+                //Stop spray audio
+                GameManager.Player.PlayerAudio[prop.PlayerID - 1].StopSpraySound();
             }
         }
     }
@@ -118,6 +158,7 @@ public class PlayerDrawing : MonoBehaviour
                 if (!isDrawing)
                 {
                     isDrawing = true;
+                    hasPickup = false;
                     Clear();
                 }
             }
@@ -126,7 +167,7 @@ public class PlayerDrawing : MonoBehaviour
         {
             isDrawing = false;
 
-            if (drawPoints.Count > 0)
+            if (drawPoints.Count > 5)
                 DoBeam();
             else
                 Clear();
@@ -149,7 +190,11 @@ public class PlayerDrawing : MonoBehaviour
             centerOfShape = FindCenterPoint();
             surfaceArea = Area();
 
-            SpawnBeam();
+            // CHECK IF A OBJECT IS WITHING THE SHAPE
+            hasObjectWithin();
+
+            if(!hasPickup)
+                SpawnBeam();
         }
         else
         {
@@ -164,17 +209,26 @@ public class PlayerDrawing : MonoBehaviour
         Clear();
     }
 
-    /*
-    void Build()
+    void hasObjectWithin()
     {
-        Poly2Mesh.Polygon poly = new Poly2Mesh.Polygon();
-        poly.outside = drawPoints;
 
-        Poly2Mesh.CreateGameObject(poly, MeshMaterial);
+        for (int i = 0; i < drawPoints.Count; ++i)
+        {
+            Vector3 dir = (centerOfShape - drawPoints[i]).normalized;
+            float dist = Vector3.Distance(centerOfShape, drawPoints[i]);
 
-        Clear();
+            RaycastHit hit;
+            Ray ray = new Ray(centerOfShape, dir);
+
+            Debug.DrawRay(centerOfShape, dir * dist, Color.blue);
+
+            if (Physics.Raycast(ray, out hit, dist, PickUpMask))
+            {
+                hasPickup = true;
+                hit.collider.GetComponent<PickUpBehaviour>().PickUp(prop.PlayerID);
+            }
+        }
     }
-    */
 
     Vector3 FindCenterPoint()
     {

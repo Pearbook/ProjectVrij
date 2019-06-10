@@ -19,14 +19,38 @@ public class BeamBehaviour : MonoBehaviour
 
     private PlayerCanvas canvasHit;
 
+    [Header("Visuals")]
+    public GameObject DropletPrefab;
+    private bool isActive;
+
+    private int waiting;
+
     private void Start()
     {
+        isActive = true;
+        StartCoroutine(DropRandomDrops());
+
         StartCoroutine(ScaleBeam(ScaleSpeed));
     }
 
     private void Update()
     {
         CheckForBuilding();
+
+        if(waiting == 1)
+        {
+            StartCoroutine(MakeBeamThin(0.3f));
+            waiting = 2;
+        }
+    }
+
+    IEnumerator DropRandomDrops()
+    {
+        while(isActive)
+        {
+            yield return new WaitForSeconds(Random.Range(0f, 0.3f));
+            Instantiate(DropletPrefab, CheckPosition.position, Quaternion.identity);
+        }
     }
 
     void CheckForBuilding()
@@ -36,24 +60,18 @@ public class BeamBehaviour : MonoBehaviour
 
         if (Physics.Raycast(ray, out hit, 5f, BuildingMask))
         {
-            print(hit.collider.name);
             canvasHit = hit.collider.GetComponent<PlayerCanvas>();
 
             canvasHit.AddToCanvas(hit.textureCoord, MyBrush);
             StartCoroutine(WaitForDestroy());
         }
 
-        /*
-        Collider[] coll = Physics.OverlapSphere(CheckPosition.position, Radius, BuildingMask);
-
-        if(coll.Length > 0)
-        {
-            StartCoroutine(WaitForDestroy());S
-        }*/
     }
 
     IEnumerator WaitForDestroy()
     {
+        if(waiting == 0)
+            waiting = 1;
         yield return new WaitForSeconds(0.5f);
         Destroy(this.gameObject);
     }
@@ -66,6 +84,21 @@ public class BeamBehaviour : MonoBehaviour
         {
             i += Time.deltaTime * rate;
             ObjToScale.localScale = Vector3.Lerp(ObjToScale.localScale, TargetScale, i);
+            yield return null;
+        }
+    }
+
+    IEnumerator MakeBeamThin(float time)
+    {
+        var i = 0.0f;
+        var rate = 1.0f / time;
+
+        yield return new WaitForSeconds(0.2f);
+
+        while (i < 1.0f)
+        {
+            i += Time.deltaTime * rate;
+            transform.localScale = Vector3.Lerp(transform.localScale, new Vector3(1, 0, 0), i);
             yield return null;
         }
     }

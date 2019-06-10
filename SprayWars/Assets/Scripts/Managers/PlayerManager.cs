@@ -7,26 +7,29 @@ public class PlayerManager : MonoBehaviour
     public GameObject PlayerPrefab;
 
     public List<PlayerProperties> AllPlayers;
+    public List<PlayerAudio> PlayerAudio;
 
     public Texture2D PlayerOneBrush;
     public Texture2D PlayerTwoBrush;
 
     public List<GameObject> BeamPrefabs;
 
-    public void GetStunned(int myID)
+    public void DisableContol()
     {
-        print("GET STUNNED BITCH");
-        DisableContol(myID);
+        for(int i = 0; i < AllPlayers.Count; ++i)
+        {
+            AllPlayers[i].AllowControl = false;
+            AllPlayers[i].AllowPainting = false;
+        }
     }
 
-    public void DisableContol(int myID)
+    public void EnableControl()
     {
-        //AllPlayers[myID - 1].gameObject.GetComponent<PlayerMovement>().AllowControl = false;
-    }
-
-    public void AddPlayerScore(int myID, int amount)
-    {
-        //AllPlayers[myID - 1].Score += amount;
+        for (int i = 0; i < AllPlayers.Count; ++i)
+        {
+            AllPlayers[i].AllowControl = true;
+            AllPlayers[i].AllowPainting = true;
+        }
     }
 
     public Texture2D GetPlayerBrush(int myID)
@@ -47,8 +50,8 @@ public class PlayerManager : MonoBehaviour
         {
             return input = new Vector3
             {
-                x = Input.GetAxis("Vertical_p1"),
-                y = Input.GetAxis("Horizontal_p1")
+                x = -Input.GetAxis("Horizontal_p1"),
+                y = Input.GetAxis("Vertical_p1")
             };
         }
         else if (myID == 2)

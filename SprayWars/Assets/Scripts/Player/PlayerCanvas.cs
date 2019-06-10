@@ -14,9 +14,13 @@ public class PlayerCanvas : MonoBehaviour
 
     RenderTexture rt;
 
+    private Color32[] colorData;
+
     private void Start()
     {
         rt = new RenderTexture(TextureSizeX, TextureSizeY, 32);
+
+        //MyCamera.targetTexture = rt;
 
         MyRenderer.material.SetTexture("_BaseColorMap", rt);
 
@@ -49,54 +53,29 @@ public class PlayerCanvas : MonoBehaviour
         RenderTexture.active = null;
     }
 
-    void CheckForPixels()
+    public Vector2 CheckForPixels()
     {
-        Texture mainTexture = MyRenderer.material.GetTexture("_BaseColorMap");
-        Texture2D texture2D = new Texture2D(mainTexture.width, mainTexture.height, TextureFormat.RGBA32, false);
+        Texture2D tex = new Texture2D(TextureSizeX, TextureSizeY, TextureFormat.RGB24, false);
 
-        /*
-        RenderTexture currentRT = rt;
+        RenderTexture.active = rt;
+        tex.ReadPixels(new Rect(0, 0, TextureSizeX, TextureSizeY), 0, 0);
+        tex.Apply();
+        RenderTexture.active = null;
 
-        RenderTexture renderTexture = new RenderTexture(mainTexture.width, mainTexture.height, 32);
-        Graphics.Blit(mainTexture, renderTexture);
-
-        RenderTexture.active = renderTexture;
-        texture2D.ReadPixels(new Rect(0, 0, renderTexture.width, renderTexture.height), 0, 0);
-        texture2D.Apply();
-
-        Color[] pixels = texture2D.GetPixels();
-
-        RenderTexture.active = currentRT;
+        colorData = tex.GetPixels32();
 
         int redPixels = 0;
+        int bluePixels = 0;
 
-        for(int i = 0; i < pixels.Length; ++i)
+        for(int i = 0; i < colorData.Length; ++i)
         {
-            if (pixels[i].r >= 125)
+            if (colorData[i].r == 255 && colorData[i].g == 71 && colorData[i].b == 71)
                 redPixels++;
-
+            if (colorData[i].r == 37 && colorData[i].g == 161 && colorData[i].b == 255)
+                bluePixels++;
         }
 
-        print(redPixels);*/
-
-        
-        var whitePixels = 0;
-        var blackPixels = 0;
-
-        for (int i = 0; i < texture2D.width; i++)
-            for (int j = 0; j < texture2D.height; j++)
-            {
-                Color pixel = texture2D.GetPixel(i, j);
-
-                // if it's a white color then just debug...
-                if (pixel.r == 255)
-                    whitePixels++;
-                else
-                    blackPixels++;
-            }
-
-        Debug.Log(string.Format("White pixels {0}, black pixels {1}", whitePixels, blackPixels));
-        
+        return new Vector2(redPixels, bluePixels);
     }
 
 }

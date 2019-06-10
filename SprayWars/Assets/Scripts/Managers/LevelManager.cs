@@ -4,6 +4,10 @@ using UnityEngine;
 
 public class LevelManager : MonoBehaviour
 {
-    public Transform LevelContainer;
+    public GameObject DecalContainer;
 
+    public void AddToDecalContainer(GameObject obj)
+    {
+        obj.transform.parent = DecalContainer.transform;
+    }
 }
