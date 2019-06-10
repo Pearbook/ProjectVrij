@@ -9,6 +9,8 @@ public class GameplayManager : MonoBehaviour
 
     public AudioSource BGM;
 
+    public PowerUpManager PowerUps;
+
     [Header("Score")]
     public int BlueScore;
     public int RedScore;
@@ -61,6 +63,7 @@ public class GameplayManager : MonoBehaviour
         GameManager.Player.EnableControl();
         GameHasStarted = true;
         timerIsOn = true;
+        PowerUps.StartSpawning();
 
         if(!BGM.isPlaying)
             BGM.Play();
@@ -79,6 +82,16 @@ public class GameplayManager : MonoBehaviour
         averageScore = (RedScore + BlueScore) / 2;
 
         GameManager.UI.ShowScoreScreen();
+    }
+
+    public float GetPixels(int playerID)
+    {
+        if(playerID == 1)
+            return AllCanvas[0].CheckForPixels().x + AllCanvas[1].CheckForPixels().x;
+        if(playerID == 2)
+            return AllCanvas[0].CheckForPixels().y + AllCanvas[1].CheckForPixels().y;
+
+        return 0;
     }
 
     public void SpawnPlayer(int id)

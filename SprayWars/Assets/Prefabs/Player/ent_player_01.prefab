@@ -554,6 +554,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Lift: {fileID: 4238567597123701600}
   AllowControl: 1
+  InputAxis: {x: 0, y: 0}
   MovementSpeed: 10
   lerpRate: 12
 --- !u!114 &4238567597386575122
@@ -570,7 +571,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   DrawPivot: {fileID: 4238567596251122776}
   threshold: 0.3
-  ShapeEndDistance: 1
+  ShapeEndDistance: 1.3
   MeshMaterial: {fileID: 2100000, guid: eff5beb019428414491d0dcc0f8780ad, type: 2}
   DrawMask:
     serializedVersion: 2
@@ -597,6 +598,7 @@ MonoBehaviour:
   Score: 0
   AllowControl: 1
   AllowPainting: 1
+  isMoving: 0
   MaxPaint: 100
   CurrentPaint: 0
   ReductionSpeed: 0.1

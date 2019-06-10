@@ -9,9 +9,11 @@ public class PlayerManager : MonoBehaviour
     public List<PlayerProperties> AllPlayers;
     public List<PlayerAudio> PlayerAudio;
 
+    [Header ("Brushes")]
     public Texture2D PlayerOneBrush;
     public Texture2D PlayerTwoBrush;
 
+    [Header ("Beams")]
     public List<GameObject> BeamPrefabs;
 
     public void DisableContol()

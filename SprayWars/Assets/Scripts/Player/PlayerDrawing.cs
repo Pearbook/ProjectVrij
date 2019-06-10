@@ -211,7 +211,7 @@ public class PlayerDrawing : MonoBehaviour
 
     void hasObjectWithin()
     {
-
+        /*
         for (int i = 0; i < drawPoints.Count; ++i)
         {
             Vector3 dir = (centerOfShape - drawPoints[i]).normalized;
@@ -226,8 +226,23 @@ public class PlayerDrawing : MonoBehaviour
             {
                 hasPickup = true;
                 hit.collider.GetComponent<PickUpBehaviour>().PickUp(prop.PlayerID);
+
+                StartCoroutine(ClearLine());
             }
+        }*/
+
+        float dist = Vector3.Distance(centerOfShape, drawPoints.First());
+
+        Collider[] coll = Physics.OverlapSphere(centerOfShape, dist, PickUpMask);
+
+        if(coll.Length > 0 && coll[0] != null)
+        {
+            hasPickup = true;
+            coll[0].GetComponent<PickUpBehaviour>().PickUp(prop.PlayerID);
+
+            StartCoroutine(ClearLine());
         }
+
     }
 
     Vector3 FindCenterPoint()
@@ -256,6 +271,16 @@ public class PlayerDrawing : MonoBehaviour
         return result.magnitude;
     }
 
+    IEnumerator ClearLine()
+    {
+        yield return new WaitForSeconds(0.1f);
+        drawPoints.Clear();
+        centerOfShape = Vector3.zero;
+        surfaceArea = 0;
+
+        hasPickup = false;
+    }
+
     void Clear()
     {
         drawPoints.Clear();
@@ -282,7 +307,7 @@ public class PlayerDrawing : MonoBehaviour
             return hit.point;
         }
 
-        Clear();
+        //Clear();
         return Vector3.zero;
     }
 

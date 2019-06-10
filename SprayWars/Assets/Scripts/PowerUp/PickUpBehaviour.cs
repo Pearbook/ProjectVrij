@@ -5,6 +5,7 @@ using UnityEngine;
 public class PickUpBehaviour : MonoBehaviour
 {
     public GameObject CloudPowerUp;
+    public GameObject RockPowerUp;
 
     private Vector3 dir;
     private bool isActive;
@@ -13,8 +14,6 @@ public class PickUpBehaviour : MonoBehaviour
     {
         if (!isActive)
         {
-            isActive = true;
-
             if (id == 1)
                 dir = Vector3.left;
             if (id == 2)
@@ -25,10 +24,18 @@ public class PickUpBehaviour : MonoBehaviour
                 GameObject obj = (GameObject)Instantiate(CloudPowerUp, Vector3.zero, Quaternion.identity);
                 obj.GetComponent<CloudBehaviour>().Direction = dir;
             }
+
+            if (RockPowerUp != null)
+            {
+                GameObject obj = (GameObject)Instantiate(RockPowerUp, Vector3.zero, Quaternion.identity);
+                obj.GetComponent<RockSpawnBehaviour>().Direction = dir;
+            }
+
+            isActive = true;
         }
         else
         {
-            Destroy(this.gameObject);
+            GameManager.Gameplay.PowerUps.RemovePowerUp(id);
         }
     }
 }

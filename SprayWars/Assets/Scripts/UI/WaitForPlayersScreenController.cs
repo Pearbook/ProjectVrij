@@ -45,9 +45,12 @@ public class WaitForPlayersScreenController : MonoBehaviour
     IEnumerator WaitForMatchStart()
     {
         yield return new WaitForSeconds(1);
-        GameManager.Gameplay.StartMatch();
-        GameManager.UI.CloseWaitScreen();
+        if (!GameManager.Gameplay.GameHasStarted)
+        {
+            GameManager.Gameplay.StartMatch();
+            GameManager.UI.CloseWaitScreen();
 
-        GetComponent<WaitForPlayersScreenController>().enabled = false;
+            GetComponent<WaitForPlayersScreenController>().enabled = false;
+        }
     }
 }
