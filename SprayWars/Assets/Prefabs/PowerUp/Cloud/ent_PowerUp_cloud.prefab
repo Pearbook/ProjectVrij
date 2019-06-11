@@ -61,6 +61,7 @@ MonoBehaviour:
   CloudPowerUp: {fileID: 7886648458776876632, guid: a18ea9e7fdce4bb498db8cfc68aacfdc,
     type: 3}
   RockPowerUp: {fileID: 0}
+  Lifetime: 5
 --- !u!1 &4411877775704946143
 GameObject:
   m_ObjectHideFlags: 0

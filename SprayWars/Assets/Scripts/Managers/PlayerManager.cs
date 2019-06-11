@@ -16,6 +16,9 @@ public class PlayerManager : MonoBehaviour
     [Header ("Beams")]
     public List<GameObject> BeamPrefabs;
 
+    [Header("Lines")]
+    public List<LineRenderer> PlayerLines;
+
     public void DisableContol()
     {
         for(int i = 0; i < AllPlayers.Count; ++i)

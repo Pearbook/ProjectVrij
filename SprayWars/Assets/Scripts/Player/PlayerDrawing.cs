@@ -56,6 +56,8 @@ public class PlayerDrawing : MonoBehaviour
             MyBrush = GameManager.Player.GetPlayerBrush(1);
             myBeam = GameManager.Player.BeamPrefabs[0];
             myParticle = prop.SprayParticles[0];
+
+            GameManager.Player.PlayerLines[0].receiveShadows = false;
         }
 
         if (GetComponent<PlayerProperties>().PlayerID == 2)
@@ -64,6 +66,8 @@ public class PlayerDrawing : MonoBehaviour
             MyBrush = GameManager.Player.GetPlayerBrush(2);
             myBeam = GameManager.Player.BeamPrefabs[1];
             myParticle = prop.SprayParticles[1];
+
+            GameManager.Player.PlayerLines[1].receiveShadows = false;
         }
 
         myParticle.transform.GetChild(0).gameObject.SetActive(false);
@@ -74,6 +78,16 @@ public class PlayerDrawing : MonoBehaviour
     {
         if (GameManager.Gameplay.GameHasStarted)
         {
+            GameManager.Player.PlayerLines[prop.PlayerID - 1].positionCount = drawPoints.Count;
+            
+            for(int i = 0; i < drawPoints.Count; ++i)
+            {
+                if(prop.PlayerID == 1)
+                    GameManager.Player.PlayerLines[prop.PlayerID - 1].SetPosition(i, new Vector3(-drawPoints[i].z, drawPoints[i].y, drawPoints[i].x - 0.01f));
+                if (prop.PlayerID == 2)
+                    GameManager.Player.PlayerLines[prop.PlayerID - 1].SetPosition(i, new Vector3(drawPoints[i].z, drawPoints[i].y, -(drawPoints[i].x + 0.01f)));
+            }
+
             if (prop.AllowControl && prop.AllowPainting)
             {
                 if (prop.PlayerID == 1)
@@ -144,6 +158,8 @@ public class PlayerDrawing : MonoBehaviour
 
                 //Stop spray audio
                 GameManager.Player.PlayerAudio[prop.PlayerID - 1].StopSpraySound();
+
+                Clear();
             }
         }
     }

@@ -67,17 +67,17 @@ public class PlayerProperties : MonoBehaviour
                     AllowPainting = true;
             }
 
+
+            
             if (CurrentPaint > MaxPaint)
             {
                 CurrentPaint = MaxPaint;
                 isRefilling = false;
-                StopAllCoroutines();
+                //StopAllCoroutines();
             }
 
             if (isRefilling)
             {
-
-
                 isRefilling = false;
             }
         }
