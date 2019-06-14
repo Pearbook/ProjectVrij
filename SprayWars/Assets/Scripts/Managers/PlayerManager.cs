@@ -13,6 +13,10 @@ public class PlayerManager : MonoBehaviour
     public Texture2D PlayerOneBrush;
     public Texture2D PlayerTwoBrush;
 
+    [Header("Buckets")]
+    public bool InRangeOne;
+    public bool InRangeTwo;
+
     [Header ("Beams")]
     public List<GameObject> BeamPrefabs;
 

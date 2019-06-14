@@ -76,10 +76,21 @@ public class PlayerProperties : MonoBehaviour
                 //StopAllCoroutines();
             }
 
+
+            if (isRefilling)
+            {
+                if (PlayerID == 1 &&! GameManager.Player.InRangeOne)
+                    isRefilling = false;
+
+                if (PlayerID == 2 && !GameManager.Player.InRangeTwo)
+                    isRefilling = false;
+            }
+
+            /*
             if (isRefilling)
             {
                 isRefilling = false;
-            }
+            }*/
         }
     }
 

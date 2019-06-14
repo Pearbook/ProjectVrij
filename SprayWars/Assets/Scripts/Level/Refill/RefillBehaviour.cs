@@ -9,6 +9,8 @@ public class RefillBehaviour : MonoBehaviour
 
     public float RefillRate;
 
+    private int id;
+
     private void Update()
     {
         CheckForPlayer();
@@ -21,7 +23,22 @@ public class RefillBehaviour : MonoBehaviour
         if(coll.Length > 0)
         {
             coll[0].GetComponentInParent<PlayerProperties>().RefillPaint(RefillRate);
-            
+
+            id = coll[0].GetComponentInParent<PlayerProperties>().PlayerID;
+
+            if (id == 1)
+                GameManager.Player.InRangeOne = true;
+
+            if (id == 2)
+                GameManager.Player.InRangeTwo = true;
+        }
+        else
+        {
+            if (id == 1)
+                GameManager.Player.InRangeOne = false;
+
+            if (id == 2)
+                GameManager.Player.InRangeTwo = false;
         }
     }
 
