@@ -9,12 +9,20 @@ public class ScoreScreenController : MonoBehaviour
     {
         if(GameManager.UI.ScoreSceenActive)
         {
-            
-            if(Input.GetAxisRaw("Cancel") != 0)
+
+            if (Input.GetAxisRaw("Cancel") != 0)
+            {
+                PlayerPrefs.SetInt("RedMatchPoints", 0);
+                PlayerPrefs.SetInt("BlueMatchPoints", 0);
+
                 SceneManager.LoadScene(0);
+            }
 
             if (Input.GetAxisRaw("Submit") != 0)
-                SceneManager.LoadScene(1);
+            {
+                //SceneManager.LoadScene(1);
+                GameManager.UI.ShowMatchScreen();
+            }
         }
     }
 }

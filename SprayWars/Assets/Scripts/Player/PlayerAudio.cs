@@ -5,6 +5,7 @@ using UnityEngine;
 public class PlayerAudio : MonoBehaviour
 {
     public AudioSource CanSource;
+    public AudioSource EmptyCanSource;
 
     public void PlaySpraySound()
     {
@@ -16,5 +17,11 @@ public class PlayerAudio : MonoBehaviour
     {
         if (CanSource.isPlaying)
             CanSource.Stop();
+    }
+
+    public void PlayEmptySpraySound()
+    {
+        if (!EmptyCanSource.isPlaying)
+            EmptyCanSource.Play();
     }
 }

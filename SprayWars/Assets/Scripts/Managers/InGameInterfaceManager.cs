@@ -7,6 +7,7 @@ public class InGameInterfaceManager : MonoBehaviour
 {
     [Header("Waiting Screen")]
     public CanvasGroup WaitScreen;
+    public CanvasGroup TimesUp;
 
     [Header ("Score Screen")]
     public CanvasGroup ScoreScreen;
@@ -23,6 +24,13 @@ public class InGameInterfaceManager : MonoBehaviour
     private int minValue;
     List<int> allScore = new List<int>();
 
+    [Header("Match")]
+    public CanvasGroup MatchScreen;
+    public List<Image> RedDots;
+    public List<Image> BlueDots;
+    [HideInInspector]
+    public bool matchIsOpen;
+
     public void CloseWaitScreen()
     {
         WaitScreen.alpha = 0;
@@ -30,11 +38,68 @@ public class InGameInterfaceManager : MonoBehaviour
         WaitScreen.blocksRaycasts = false;
     }
 
+    public void ShowTimesUp()
+    {
+        TimesUp.alpha = 1;
+    }
+
+    public void ShowMatchScreen()
+    {
+        if (!matchIsOpen)
+        {
+            matchIsOpen = true;
+
+            ScoreScreen.alpha = 0;
+            ScoreScreen.interactable = false;
+            ScoreScreen.blocksRaycasts = false;
+
+            MatchScreen.alpha = 1;
+
+            // Red wins
+            if (GameManager.Gameplay.RedScore > GameManager.Gameplay.BlueScore)
+            {
+                if (GameManager.Gameplay.RedMatchPoints < 3)
+                    GameManager.Gameplay.RedMatchPoints++;
+            }
+            // Blue wins
+            if (GameManager.Gameplay.RedScore < GameManager.Gameplay.BlueScore)
+            {
+                if (GameManager.Gameplay.BlueMatchPoints < 3)
+                    GameManager.Gameplay.BlueMatchPoints++;
+            }
+
+            for (int i = 0; i < GameManager.Gameplay.RedMatchPoints; ++i)
+            {
+                RedDots[i].color = new Color(RedDots[i].color.r, RedDots[i].color.g, RedDots[i].color.b, 255);
+            }
+
+            for (int i = 0; i < GameManager.Gameplay.BlueMatchPoints; ++i)
+            {
+                BlueDots[i].color = new Color(BlueDots[i].color.r, BlueDots[i].color.g, BlueDots[i].color.b, 255);
+            }
+
+            if (GameManager.Gameplay.RedMatchPoints == 3)
+            {
+                GameManager.Gameplay.redWins = true;
+                return;
+            }
+
+            if (GameManager.Gameplay.BlueMatchPoints == 3)
+            {
+                GameManager.Gameplay.blueWins = true;
+                return;
+            }
+
+        }
+    }
+
     public void ShowScoreScreen()
     {
         ScoreScreen.alpha = 1;
         ScoreScreen.interactable = true;
         ScoreScreen.blocksRaycasts = true;
+
+        TimesUp.alpha = 0;
 
         ScoreSceenActive = true;
 

@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     static GameplayManager gameplay;
     static InGameInterfaceManager ui;
     static LevelManager level;
+    static AudioManager audioMan;
 
     public static GameManager Manager
     {
@@ -62,6 +63,17 @@ public class GameManager : MonoBehaviour
                 level = FindObjectOfType<LevelManager>();
 
             return level;
+        }
+    }
+
+    public static AudioManager Audio
+    {
+        get
+        {
+            if (audioMan == null)
+                audioMan = FindObjectOfType<AudioManager>();
+
+            return audioMan;
         }
     }
 }

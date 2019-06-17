@@ -16,9 +16,11 @@ public class PlayerManager : MonoBehaviour
     [Header("Buckets")]
     public bool InRangeOne;
     public bool InRangeTwo;
+    public List<GameObject> Arrows;
 
     [Header ("Beams")]
-    public List<GameObject> BeamPrefabs;
+    public List<GameObject> RedBeamPrefabs;
+    public List<GameObject> BlueBeamPrefabs;
 
     [Header("Lines")]
     public List<LineRenderer> PlayerLines;

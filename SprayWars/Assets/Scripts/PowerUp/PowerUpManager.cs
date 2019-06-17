@@ -17,12 +17,21 @@ public class PowerUpManager : MonoBehaviour
 
     private void Update()
     {
-        if (allowSpawn == 0)
-            StartCoroutine(WaitForSpawn());
-        if (allowSpawn == 1)
+        if (GameManager.Gameplay.timerIsOn)
         {
-            SpawnPowerUp();
-            allowSpawn = 2;
+            if (allowSpawn == 0)
+                StartCoroutine(WaitForSpawn());
+            if (allowSpawn == 1)
+            {
+                SpawnPowerUp();
+                allowSpawn = 2;
+            }
+        }
+        else
+        {
+            StopAllCoroutines();
+            Destroy(BoundsObject[0].GetComponent<PowerUpSpawnPointBehaviour>().MyPowerUp.gameObject);
+            Destroy(BoundsObject[1].GetComponent<PowerUpSpawnPointBehaviour>().MyPowerUp.gameObject);
         }
     }
 
@@ -39,8 +48,14 @@ public class PowerUpManager : MonoBehaviour
 
     void SpawnPowerUp()
     {
+        /*
         float redScore = GameManager.Gameplay.GetPixels(1);
         float blueScore = GameManager.Gameplay.GetPixels(2);
+        */
+
+
+        float redScore = 1;
+        float blueScore = 1;
 
         if (redScore > blueScore)
         {

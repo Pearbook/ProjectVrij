@@ -43,10 +43,16 @@ public class PickUpBehaviour : MonoBehaviour
             }
 
             isActive = true;
+
+            GameManager.Audio.PlayPickUpAudio(id);
+
+            GameManager.Gameplay.PowerUps.RemovePowerUp(id);
+
+            Destroy(this.gameObject);
         }
         else
         {
-            GameManager.Gameplay.PowerUps.RemovePowerUp(id);
+            
         }
     }
 

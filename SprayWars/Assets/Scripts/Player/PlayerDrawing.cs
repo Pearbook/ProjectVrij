@@ -30,13 +30,14 @@ public class PlayerDrawing : MonoBehaviour
     public LayerMask PickUpMask;
 
     private ParticleSystem myParticle;
-    private GameObject myBeam;
+    private List<GameObject> myBeam;
 
     private Vector3 direction;
     private List<Vector3> drawPoints = new List<Vector3>();
     private Vector3 centerOfShape;
     private float surfaceArea;
     private Vector2 textureCoord;
+    private int lineIndex;
 
     private bool isDrawing;
     private bool isButtonPressed;
@@ -54,7 +55,7 @@ public class PlayerDrawing : MonoBehaviour
         {
             direction = Vector3.right;
             MyBrush = GameManager.Player.GetPlayerBrush(1);
-            myBeam = GameManager.Player.BeamPrefabs[0];
+            myBeam = GameManager.Player.RedBeamPrefabs;
             myParticle = prop.SprayParticles[0];
 
             GameManager.Player.PlayerLines[0].receiveShadows = false;
@@ -64,7 +65,7 @@ public class PlayerDrawing : MonoBehaviour
         {
             direction = Vector3.left;
             MyBrush = GameManager.Player.GetPlayerBrush(2);
-            myBeam = GameManager.Player.BeamPrefabs[1];
+            myBeam = GameManager.Player.BlueBeamPrefabs;
             myParticle = prop.SprayParticles[1];
 
             GameManager.Player.PlayerLines[1].receiveShadows = false;
@@ -78,24 +79,16 @@ public class PlayerDrawing : MonoBehaviour
     {
         if (GameManager.Gameplay.GameHasStarted)
         {
-            GameManager.Player.PlayerLines[prop.PlayerID - 1].positionCount = drawPoints.Count;
-            
-            for(int i = 0; i < drawPoints.Count; ++i)
-            {
-                if(prop.PlayerID == 1)
-                    GameManager.Player.PlayerLines[prop.PlayerID - 1].SetPosition(i, new Vector3(-drawPoints[i].z, drawPoints[i].y, drawPoints[i].x - 0.01f));
-                if (prop.PlayerID == 2)
-                    GameManager.Player.PlayerLines[prop.PlayerID - 1].SetPosition(i, new Vector3(drawPoints[i].z, drawPoints[i].y, -(drawPoints[i].x + 0.01f)));
-            }
 
-            if (prop.AllowControl && prop.AllowPainting)
+            if (prop.AllowControl)
             {
                 if (prop.PlayerID == 1)
                     ButtonPress("Jump_p1");
                 else if (prop.PlayerID == 2)
                     ButtonPress("Jump_p2");
             }
-            else
+
+            if (!prop.AllowControl && !prop.AllowPainting)
             {
                 isDrawing = false;
             }
@@ -128,6 +121,15 @@ public class PlayerDrawing : MonoBehaviour
                     if (drawPoints.Count <= 0 || Vector3.Distance(point, drawPoints.Last()) > threshold)
                     {
                         drawPoints.Add(point);
+
+                        GameManager.Player.PlayerLines[prop.PlayerID - 1].positionCount++;
+
+                        if (prop.PlayerID == 1)
+                            GameManager.Player.PlayerLines[prop.PlayerID - 1].SetPosition(lineIndex, new Vector3(-point.z, point.y, point.x - 0.01f));
+                        if (prop.PlayerID == 2)
+                            GameManager.Player.PlayerLines[prop.PlayerID - 1].SetPosition(lineIndex, new Vector3(point.z, point.y, -(point.x + 0.01f)));
+
+                        lineIndex++;
                     }
 
                     // Only reduce when moving
@@ -153,6 +155,10 @@ public class PlayerDrawing : MonoBehaviour
                     myParticle.transform.GetChild(0).gameObject.SetActive(false);
                 }
 
+                // Reset Line
+                GameManager.Player.PlayerLines[prop.PlayerID - 1].positionCount = 0;
+                lineIndex = 0;
+
                 // Stop reducing paint
                 prop.StopPaint();
 
@@ -171,11 +177,18 @@ public class PlayerDrawing : MonoBehaviour
         {
             if (isButtonPressed == false)
             {
-                if (!isDrawing)
+                if (!prop.AllowPainting)
                 {
-                    isDrawing = true;
-                    hasPickup = false;
-                    Clear();
+                    GameManager.Player.PlayerAudio[prop.PlayerID - 1].PlayEmptySpraySound();
+                }
+                else
+                {
+                    if (!isDrawing)
+                    {
+                        isDrawing = true;
+                        hasPickup = false;
+                        Clear();
+                    }
                 }
             }
         }
@@ -184,7 +197,16 @@ public class PlayerDrawing : MonoBehaviour
             isDrawing = false;
 
             if (drawPoints.Count > 5)
-                DoBeam();
+            {
+                if (drawPoints.Count < 30)
+                    DoBeam(1); // Small
+
+                if (drawPoints.Count > 30 && drawPoints.Count < 60)
+                    DoBeam(2); // Medium
+
+                if (drawPoints.Count > 60)
+                    DoBeam(3); // Big 
+            }
             else
                 Clear();
 
@@ -192,7 +214,7 @@ public class PlayerDrawing : MonoBehaviour
         }
     }
 
-    void DoBeam()
+    void DoBeam(int size)
     {
         // Check if the shape is closed
         // Get the center of the shape
@@ -210,7 +232,7 @@ public class PlayerDrawing : MonoBehaviour
             hasObjectWithin();
 
             if(!hasPickup)
-                SpawnBeam();
+                SpawnBeam(size);
         }
         else
         {
@@ -218,34 +240,22 @@ public class PlayerDrawing : MonoBehaviour
         }
     }
 
-    void SpawnBeam()
+    void SpawnBeam(int size)
     {
-        GameObject obj = (GameObject)Instantiate(myBeam, centerOfShape, Quaternion.identity);
+        GameObject obj;
+
+        if(size == 1)
+            obj = (GameObject)Instantiate(myBeam[0], centerOfShape, Quaternion.identity);
+        if (size == 2)
+            obj = (GameObject)Instantiate(myBeam[1], centerOfShape, Quaternion.identity);
+        if(size == 3)
+            obj = (GameObject)Instantiate(myBeam[2], centerOfShape, Quaternion.identity);
 
         Clear();
     }
 
     void hasObjectWithin()
     {
-        /*
-        for (int i = 0; i < drawPoints.Count; ++i)
-        {
-            Vector3 dir = (centerOfShape - drawPoints[i]).normalized;
-            float dist = Vector3.Distance(centerOfShape, drawPoints[i]);
-
-            RaycastHit hit;
-            Ray ray = new Ray(centerOfShape, dir);
-
-            Debug.DrawRay(centerOfShape, dir * dist, Color.blue);
-
-            if (Physics.Raycast(ray, out hit, dist, PickUpMask))
-            {
-                hasPickup = true;
-                hit.collider.GetComponent<PickUpBehaviour>().PickUp(prop.PlayerID);
-
-                StartCoroutine(ClearLine());
-            }
-        }*/
 
         float dist = Vector3.Distance(centerOfShape, drawPoints.First());
 

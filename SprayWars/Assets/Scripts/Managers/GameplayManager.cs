@@ -14,12 +14,18 @@ public class GameplayManager : MonoBehaviour
     [Header("Score")]
     public int BlueScore;
     public int RedScore;
+    public int BlueMatchPoints;
+    public int RedMatchPoints;
+    //[HideInInspector]
+    public bool redWins, blueWins;
+
     //[HideInInspector]
     public float averageScore;
     public List<PlayerCanvas> AllCanvas = new List<PlayerCanvas>();
 
     [Header("Timer")]
     public int MaxTime;
+    public float EndWaitTime;
     [HideInInspector]
     public float timer = 0;
 
@@ -28,11 +34,13 @@ public class GameplayManager : MonoBehaviour
 
     public bool GameHasStarted;
 
-
     private void Awake()
     {
         SpawnPlayer(1);
         SpawnPlayer(2);
+
+        RedMatchPoints = PlayerPrefs.GetInt("RedMatchPoints");
+        BlueMatchPoints = PlayerPrefs.GetInt("BlueMatchPoints");
 
         Cursor.visible = false;
     }
@@ -72,16 +80,28 @@ public class GameplayManager : MonoBehaviour
     void EndMatch()
     {
         GameManager.Player.DisableContol();
-        
-        for(int i = 0; i < AllCanvas.Count; i++)
+
+        StartCoroutine(WaitForScoreScreen());
+    }
+
+    void ShowScoreScreen()
+    {
+        for (int i = 0; i < AllCanvas.Count; i++)
         {
             RedScore += (int)AllCanvas[i].CheckForPixels().x / 100;
             BlueScore += (int)AllCanvas[i].CheckForPixels().y / 100;
         }
-        
+
         averageScore = (RedScore + BlueScore) / 2;
 
         GameManager.UI.ShowScoreScreen();
+    }
+
+    IEnumerator WaitForScoreScreen()
+    {
+        GameManager.UI.ShowTimesUp();
+        yield return new WaitForSeconds(EndWaitTime);
+        ShowScoreScreen();
     }
 
     public float GetPixels(int playerID)

@@ -57,6 +57,9 @@ public class PlayerProperties : MonoBehaviour
 
                 if (CurrentPaint <= 0)
                 {
+                    // Display bucket arrow
+                    GameManager.Player.Arrows[PlayerID - 1].SetActive(true);
+
                     AllowPainting = false;
                     StopPaint();
                 }
@@ -72,6 +75,9 @@ public class PlayerProperties : MonoBehaviour
             if (CurrentPaint > MaxPaint)
             {
                 CurrentPaint = MaxPaint;
+                GameManager.Audio.StopRefillAudio(PlayerID);
+                
+
                 isRefilling = false;
                 //StopAllCoroutines();
             }
@@ -79,11 +85,20 @@ public class PlayerProperties : MonoBehaviour
 
             if (isRefilling)
             {
-                if (PlayerID == 1 &&! GameManager.Player.InRangeOne)
+                // Remove bucket arrow
+                GameManager.Player.Arrows[PlayerID - 1].SetActive(false);
+
+                if (PlayerID == 1 && !GameManager.Player.InRangeOne)
+                {
+                    GameManager.Audio.StopRefillAudio(PlayerID);
                     isRefilling = false;
+                }
 
                 if (PlayerID == 2 && !GameManager.Player.InRangeTwo)
+                {
+                    GameManager.Audio.StopRefillAudio(PlayerID);
                     isRefilling = false;
+                }
             }
 
             /*
@@ -102,6 +117,8 @@ public class PlayerProperties : MonoBehaviour
             {
                 isRefilling = true;
                 refillSpeed = speed;
+
+                GameManager.Audio.PlayRefillAudio(PlayerID);
 
                 StartCoroutine(Refilling());
             }
